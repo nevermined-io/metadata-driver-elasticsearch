@@ -5,8 +5,8 @@
 >    🐳  [Elasticsearch](https://www.elastic.co/) driver for MetadataDB (Python).
 > [nevermined.io](https://nevermined.io)
 
-[![PyPI](https://img.shields.io/pypi/v/nevermined-metadata-driver-elastic.svg)](https://pypi.org/project/nevermined-metadata-driver-elastic/)
-[![Python package](https://github.com/nevermined-io/metadata-driver-elastic/workflows/Python%20package/badge.svg)](https://github.com/nevermined-io/metadata-driver-elastic/actions)
+[![PyPI](https://img.shields.io/pypi/v/nevermined-metadata-driver-elasticsearch.svg)](https://pypi.org/project/nevermined-metadata-driver-elasticsearch/)
+[![Python package](https://github.com/nevermined-io/metadata-driver-elasticsearch/workflows/Python%20package/badge.svg)](https://github.com/nevermined-io/metadata-driver-elasticsearch/actions)
 
 ---
 
