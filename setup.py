@@ -11,7 +11,10 @@ with open('README.md') as readme_file:
 with open('CHANGELOG.md') as changelog_file:
     changelog = changelog_file.read()
 
-requirements = ['nevermined-metadata-driver-interface', 'elasticsearch', ]
+requirements = [
+    'nevermined-metadata-driver-interface',
+    'elasticsearch~=7.13.1'
+]
 
 setup_requirements = ['pytest-runner', ]
 
@@ -30,6 +33,7 @@ setup(
         'Programming Language :: Python :: 3.6',
     ],
     description="🐳 Metadata ElasticSearch Driver (Python).",
+    extras_require={'test': test_requirements, 'dev': test_requirements},
     install_requires=requirements,
     license="Apache Software License 2.0",
     long_description=readme,
@@ -42,6 +46,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/nevermined-io/metadata-driver-elasticsearch',
-    version='0.1.0',
+    version='0.1.1',
     zip_safe=False,
 )

@@ -164,7 +164,7 @@ class Plugin(AbstractPlugin):
         object_list = []
         for x in page['hits']['hits']:
             object_list.append(x['_source'])
-        return object_list, page['hits']['total']
+        return object_list, page['hits']['total']['value']
 
     def text_query(self, search_model: FullTextModel):
         """Query elasticsearch for objects.
@@ -177,7 +177,7 @@ class Plugin(AbstractPlugin):
             self._mapping_to_sort(search_model.sort.keys())
             sort = self._sort_object(search_model.sort)
         else:
-            sort = [{"service.metadata.curation.rating": "asc"}]
+            sort = [{"_id": "asc"}]
         body = {
             'sort': sort,
             'from': (search_model.page - 1) * search_model.offset,
@@ -193,16 +193,16 @@ class Plugin(AbstractPlugin):
         object_list = []
         for x in page['hits']['hits']:
             object_list.append(x['_source'])
-        return object_list, page['hits']['total']
+        return object_list, page['hits']['total']['value']
 
     def _mapping_to_sort(self, keys):
         for i in keys:
             mapping = """{
                               "properties": {
-                                "%s" : { 
+                                "%s" : {
                                   "type": "text",
                                   "fields": {
-                                    "keyword": { 
+                                    "keyword": {
                                       "type": "keyword"
                                     }
                                   }
@@ -219,7 +219,7 @@ class Plugin(AbstractPlugin):
             o = []
             for i in sort.keys():
                 if self.driver._es.indices.get_field_mapping(i)[self.driver._index]['mappings'][
-                    '_doc'][i]['mapping'][i.split('.')[-1]]['type'] == 'text':
+                    i]['mapping'][i.split('.')[-1]]['type'] == 'text':
                     o.append({i + ".keyword": ('asc' if sort.get(i) == 1 else 'desc')}, )
                 else:
                     o.append({i: ('asc' if sort.get(i) == 1 else 'desc')}, )
