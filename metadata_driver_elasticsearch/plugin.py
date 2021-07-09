@@ -212,7 +212,7 @@ class Plugin(AbstractPlugin):
             """ % i
             if self.driver._es.indices.get_field_mapping(i)[self.driver._index]['mappings'] == {}:
                 self.driver._es.indices.put_mapping(index=self.driver._index, body=mapping,
-                                                    doc_type='_doc')
+                                                    doc_type='_doc', include_type_name=True)
 
     def _sort_object(self, sort):
         try:
