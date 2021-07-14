@@ -45,7 +45,7 @@ class ElasticsearchInstance(object):
                 time.sleep(5)
         except Exception as e:
             logging.info("Trying to connect...")
-        self._es.indices.create(index=index, ignore=400, body=mapping)
+        self._es.indices.create(index=index, ignore=400, body=mapping, include_type_name=True)
 
     @property
     def instance(self):
