@@ -194,6 +194,14 @@ def test_query_parser():
         "should": [{"match": {"service.attributes.additionalInformation.categories": "weather"}},
                    {"match": {"service.attributes.additionalInformation.categories": "other"}}]}},
                                    None)
+    query = { 'did' : ['did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888865', 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888866']}
+    assert query_parser(query) == ({"bool": {
+        "should": [{"match": {"id": "did:op"
+                                    ":cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888865"}},
+                   {"match": {"id": "did:op"
+                                    ":cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888866"}}
+                   ]}},
+                                   None)
 
 
 def test_default_sort():
@@ -204,5 +212,19 @@ def test_default_sort():
     es.write(ddo_sample2, ddo_sample2['id'])
     search_model = QueryModel({'price': [0, 12]}, page=1)
     assert es.query(search_model)[0][0]['id'] == ddo_sample2['id']
+    es.delete(ddo_sample['id'])
+    es.delete(ddo_sample2['id'])
+
+
+def test_did_query():
+    es.write(ddo_sample, ddo_sample['id'])
+    ddo_sample2 = ddo_sample.copy()
+    ddo_sample2['id'] = 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864'
+    es.write(ddo_sample2, ddo_sample2['id'])
+    search_model = QueryModel({'did': ['did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864']}, page=1)
+    assert es.query(search_model)[0][0]['id'] == ddo_sample2['id']
+    assert len(es.query(search_model)[0]) == 1
+    search_model2 = QueryModel({'did': ['did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864', 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888865']}, page=1)
+    assert len(es.query(search_model2)[0]) == 2
     es.delete(ddo_sample['id'])
     es.delete(ddo_sample2['id'])
