@@ -8,5 +8,6 @@ datePublished = "service.attributes.main.datePublished"
 dateCreated = "service.attributes.main.dateCreated"
 updated_frequency = "service.attributes.additionalInformation.updateFrequency"
 service_type = "service.attributes.main.type"
+did = "id"
 
-list_indexes = [price, license, sample, categories, created, updated_frequency, service_type]
+list_indexes = [price, license, sample, categories, created, updated_frequency, service_type, did]

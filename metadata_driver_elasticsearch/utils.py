@@ -41,6 +41,8 @@ def query_parser(query):
             query_result = create_created_query(query, query_result, 'datePublished')
         elif 'sample' in key:
             query_result = create_query(['sample'], index.sample, query_result, AND, MATCH)
+        elif 'did' in key:
+            query_result = create_query(query['did'], index.did, query_result, OR, MATCH)
         elif 'text' in key:
             text = query['text'][0]
         else:
