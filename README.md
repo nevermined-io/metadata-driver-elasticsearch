@@ -147,6 +147,11 @@ This queries are the following:
     
     `{"text":["weather"]}`
 
+- did
+    Retrieve all the matching dids.
+    
+    `{"did":["did:nv:1..,did:nv:2.."]}`
+
 
 ## Testing
 
