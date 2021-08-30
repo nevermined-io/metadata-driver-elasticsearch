@@ -196,9 +196,9 @@ def test_query_parser():
                                    None)
     query = { 'did' : ['did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888865', 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888866']}
     assert query_parser(query) == ({"bool": {
-        "should": [{"match": {"id": "did:op"
+        "should": [{"match": {"_id": "did:op"
                                     ":cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888865"}},
-                   {"match": {"id": "did:op"
+                   {"match": {"_id": "did:op"
                                     ":cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888866"}}
                    ]}},
                                    None)
