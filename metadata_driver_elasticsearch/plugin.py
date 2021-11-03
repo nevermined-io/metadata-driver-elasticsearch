@@ -4,8 +4,6 @@ from metadatadb_driver_interface.plugin import AbstractPlugin
 from metadatadb_driver_interface.search_model import FullTextModel, QueryModel
 
 from metadata_driver_elasticsearch.instance import get_database_instance
-from metadata_driver_elasticsearch.utils import query_parser
-
 
 class Plugin(AbstractPlugin):
     """Elasticsearch ledger plugin for `Metadata DB's Python reference
@@ -134,8 +132,7 @@ class Plugin(AbstractPlugin):
         :return: list of objects that match the query.
         """
         assert search_model.page >= 1, 'page value %s is invalid' % search_model.page
-        query_parsed = query_parser(search_model.query)
-        self.logger.debug(f'elasticsearch::query::{query_parsed[0]}')
+        self.logger.debug(f'elasticsearch::query::{search_model.query}')
         if search_model.sort is not None:
             self._mapping_to_sort(search_model.sort.keys())
             sort = self._sort_object(search_model.sort)
@@ -144,7 +141,7 @@ class Plugin(AbstractPlugin):
         if search_model.query == {}:
             query = {'match_all': {}}
         else:
-            query = query_parsed[0]
+            query = search_model.query
 
         body = {
             'sort': sort,
@@ -158,7 +155,7 @@ class Plugin(AbstractPlugin):
         page = self.driver._es.search(
             index=self.driver._index,
             body=body,
-            q=query_parsed[1]
+            q=search_model.text
         )
 
         object_list = []

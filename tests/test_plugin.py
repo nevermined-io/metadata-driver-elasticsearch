@@ -1,4 +1,5 @@
 import pytest
+import datetime
 from metadatadb_driver_interface.metadatadb import MetadataDb
 from metadatadb_driver_interface.search_model import FullTextModel, QueryModel
 
@@ -69,33 +70,40 @@ def test_plugin_list():
 
 def test_search_query():
     es.write(ddo_sample, ddo_sample['id'])
-    search_model = QueryModel({'price': [0, 12]}, page=1)
+    search_model = QueryModel({'bool': {'must': [{'range': {'service.attributes.main.price': {'gte': 0, 'lte': 12}}}]}}, page=1)
     assert es.query(search_model)[0][0]['id'] == ddo_sample['id']
-    search_model_2 = QueryModel({'license': ['CC-BY']}, page=1)
+    search_model_2 = QueryModel({'bool': {'should': [{'match': {'service.attributes.main.license': 'CC-BY'}}]}}, page=1)
     assert es.query(search_model_2)[0][0]['id'] == ddo_sample['id']
-    search_model_3 = QueryModel({'price': [0, 12], 'license': ['CC-BY']}, page=1)
+    search_model_3 = QueryModel({'bool': {'must': [{'range': {'service.attributes.main.price': {'gte': 0, 'lte': 12}}}], 'should': [{'match': {'service.attributes.main.license': 'CC-BY'}}]}}, page=1)
     assert es.query(search_model_3)[0][0]['id'] == ddo_sample['id']
     search_model_4 = QueryModel(
-        {'price': [0, 12], 'license': ['CC-BY'], 'type': ['dataset']}, page=1)
+        {'bool': {'must': [{'range': {'service.attributes.main.price': {'gte': 0, 'lte': 12}}}, {'match': {'service.attributes.main.type': 'dataset'}}], 'should': [{'match': {'service.attributes.main.license': 'CC-BY'}}]}}, 
+        page=1)
     assert es.query(search_model_4)[0][0]['id'] == ddo_sample['id']
-    search_model_5 = QueryModel({'sample': []}, page=1)
+    search_model_5 = QueryModel(
+        {'bool': {'must': [{'match': {'service.attributes.additionalInformation.links.type': 'sample'}}]}}
+        , page=1)
     assert es.query(search_model_5)[0][0]['id'] == ddo_sample['id']
-    search_model_6 = QueryModel({'created': ['2016-02-07T16:02:20Z', '2016-02-09T16:02:20Z']},
-                                page=1)
+    search_model_6 = QueryModel(
+        {'bool': {'must': [{'range': {'created': {'gte': datetime.datetime(2016, 2, 7, 16, 2, 20), 'lte': datetime.datetime(2016, 2, 9, 16, 2, 20)}}}]}},
+        page=1)
     assert len(es.query(search_model_6)[0]) == 1
-    search_model_7 = QueryModel({'dateCreated': ['2016-02-07T16:02:20Z', '2016-02-09T16:02:20Z']},
+    search_model_7 = QueryModel({'bool': {'must': [{'range': {'service.attributes.main.dateCreated': {'gte': datetime.datetime(2016, 2, 7, 16, 2, 20), 'lte': datetime.datetime(2016, 2, 9, 16, 2, 20)}}}]}},
                                 page=1)
     assert es.query(search_model_7)[0][0]['id'] == ddo_sample['id']
-    search_model_8 = QueryModel({'datePublished': ['2016-02-07T16:02:20Z', '2016-02-09T16:02:20Z']},
+    search_model_8 = QueryModel({'bool': {'must': [{'range': {'service.attributes.main.datePublished': {'gte': datetime.datetime(2016, 2, 7, 16, 2, 20), 'lte': datetime.datetime(2016, 2, 9, 16, 2, 20)}}}]}},
                                 page=1)
     assert len(es.query(search_model_8)[0]) == 1
     search_model_9 = QueryModel(
-        {'datePublished': ['2016-02-07T16:02:20Z', '2016-02-09T16:02:20Z'], 'text': ['Weather']},
+        {'bool': {'must': [{'range': {'service.attributes.main.datePublished': {'gte': datetime.datetime(2016, 2, 7, 16, 2, 20), 'lte': datetime.datetime(2016, 2, 9, 16, 2, 20)}}}]}},
         page=1)
     assert len(es.query(search_model_9)[0]) == 1
-    search_model_10 = QueryModel({'text': ['Weather']}, page=1)
+    search_model_10 = QueryModel(query={}, text='Weather', page=1)
     assert len(es.query(search_model_10)[0]) == 1
-    search_model = QueryModel({'price': [0, 12], 'text': ['Weather']}, page=1)
+    search_model = QueryModel(
+        query={'bool': {'must': [{'range': {'service.attributes.main.price': {'gte': 0, 'lte': 12}}}]}},
+        text= 'Weather', page=1
+    )
     assert es.query(search_model)[0][0]['id'] == ddo_sample['id']
     es.delete(ddo_sample['id'])
 
@@ -210,7 +218,7 @@ def test_default_sort():
     ddo_sample2['id'] = 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864'
     ddo_sample2['service'][2]['attributes']['curation']['rating'] = 0.99
     es.write(ddo_sample2, ddo_sample2['id'])
-    search_model = QueryModel({'price': [0, 12]}, page=1)
+    search_model = QueryModel({'bool': {'must': [{'range': {'service.attributes.main.price': {'gte': 0, 'lte': 12}}}]}}, page=1)
     assert es.query(search_model)[0][0]['id'] == ddo_sample2['id']
     es.delete(ddo_sample['id'])
     es.delete(ddo_sample2['id'])
@@ -221,10 +229,14 @@ def test_did_query():
     ddo_sample2 = ddo_sample.copy()
     ddo_sample2['id'] = 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864'
     es.write(ddo_sample2, ddo_sample2['id'])
-    search_model = QueryModel({'did': ['did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864']}, page=1)
+    search_model = QueryModel(
+        {'bool': {'should': [{'match': {'_id': 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864'}}]}},
+         page=1)
     assert es.query(search_model)[0][0]['id'] == ddo_sample2['id']
     assert len(es.query(search_model)[0]) == 1
-    search_model2 = QueryModel({'did': ['did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864', 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888865']}, page=1)
+    search_model2 = QueryModel(
+        {'bool': {'should': [{'match': {'_id': 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888864'}}, {'match': {'_id': 'did:op:cb36cf78d87f4ce4a784f17c2a4a694f19f3fbf05b814ac6b0b7197163888865'}}]}},
+        page=1)
     assert len(es.query(search_model2)[0]) == 2
     es.delete(ddo_sample['id'])
     es.delete(ddo_sample2['id'])
